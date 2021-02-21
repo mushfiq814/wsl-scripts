@@ -7,7 +7,7 @@ The Windows Subsystem for Linux (WSL) is great and wasy to work with if all you 
 This repo houses the scripts to do just that.
 
 ## Known Issues
-* Filepaths in the WSL filesystem (\\wsl$\Ubuntu\*) not playing with `System.Windows.Media.Mediaplayer`. Currently, only playing audio files in the Windows filesystem.
+* Filepaths in the WSL filesystem (`\\wsl$\Ubuntu\*`) not playing with `System.Windows.Media.Mediaplayer`. Currently, only playing audio files in the Windows filesystem.
 * Filepaths with whitespace causing playback issues.
 
 ## Usage
@@ -15,7 +15,7 @@ This repo houses the scripts to do just that.
 	```sh
 	$ git clone https://github.com/mushfiq814/wsl-musicplayer
 	```
-2. Add `mp3play` to local binaries at `/usr/local/bin/`. Note `sudo` is required to do this.
+2. Add `mp3play` to local binaries at `/usr/local/bin/`. **Note**: `sudo` is required to do this.
 	```sh
 	$ sudo cp mp3play /usr/local/bin
 	```
