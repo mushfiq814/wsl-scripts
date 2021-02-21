@@ -8,6 +8,7 @@
 # filepath variables
 nowplaying=$HOME/dotfiles/scripts/wsl-musicplayer/now-playing.txt
 psscript=$HOME/dotfiles/scripts/wsl-musicplayer/player.ps1
+playlistFile=$HOME/dotfiles/scripts/wsl-musicplayer/playlist.txt
 
 stop_player () {
 	# Kill any previous powershell.exe sessions
@@ -50,10 +51,15 @@ play_song () {
 }
 
 play_directory () {
-	echo "Directory play is not supported"
+	# clear out playlist file
+	> $playlistFile
 
-	# STEPS
 	# * loop through all mp3 files in directoy
+	for song in $1/*.mp3; do
+		# append song to playlist
+		echo $song >> $playlistFile
+	done
+
 	# * start background process to play each song
 	# * implement playlist system
 	# * need to implement next and prev to cycle through songs
@@ -74,7 +80,7 @@ while test $# -gt 0; do
 			shift
 			arg=$1
 			if [ -d "$arg" ]; then
-				play_directory
+				play_directory $arg
 			elif [ -f "$arg" ]; then
 				play_song $arg
 			else
