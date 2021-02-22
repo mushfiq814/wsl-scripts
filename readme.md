@@ -4,14 +4,17 @@ Play Music in Windows 10 through WSL by invoking a Windows Media Player in the b
 ## Motivation
 The Windows Subsystem for Linux (WSL) is great and wasy to work with if all you need are shell sessions. You can even interface with files in the Windows filesystem. However, connecting hardware capabilities such as graphics (GUIs) and audio is still not as easy (as far as I have found). I wanted to be able to control my music player to play my local mp3 files from a WSL session and not finding any that works natively with WSL or that can interface with Groove Music (my music player of choice), I decided to turn to PowerShell to create Windows Media Player objects to play any local audio files while being able to be controlled through WSL.
 
-This repo houses the scripts to do just that.
+## Disclaimer
+This project has been temporarily abandoned since I couldn't find a good way to pause and play mp3 files using Windows Media Player. The project has been moved into the `windows-media-player` branch.
+
+Currently, I am using pulseaudio to drive audio hardware through WSL. All instructions for setting up a pulseaudio server on WSL is detailed in `wsl-pulseaudio.md`. This way, I can use existing linux media players such as `mpv` and `cmus` to play my songs.
 
 ## Known Issues
-* Filepaths in the WSL filesystem (`\\wsl$\Ubuntu\*`) not playing with `System.Windows.Media.Mediaplayer`. Currently, only playing audio files in the Windows filesystem.
-* Filepaths with whitespace causing playback issues.
+* `mpv` sometimes cannot play a new song when triggered with a playlist of files. When a track change is happening, it seg faults.
+* `cmus` has audio playback issues.
 
 ## Usage
-1. Clone this repo (or just download the scripts to any directoy in your filesystem).
+1. Clone this repo (or just download the scripts to any directory in your filesystem).
 	```sh
 	$ git clone https://github.com/mushfiq814/wsl-musicplayer
 	```
