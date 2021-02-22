@@ -29,7 +29,7 @@ start_server () {
 
 play_song () {
 	# Stop any existing music player sessions
-	stop_player
+	stop_server
 
 	# Write song info to file
 	artist=$(mid3v2 $1 | grep TPE1 | sed 's/TPE1=\(.*\)/\1/g')
