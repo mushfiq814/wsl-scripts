@@ -78,3 +78,9 @@ $ CFLAGS="$CFLAGS -g -O0" ./configure     \
 $ sudo make && make install
 ```
 > Note: compiling might not be successfull, in which case I had to switch to root user and rerun `make && make install`
+
+## Add server IP to shell profile
+Add the following line to shell profile/config file (.zshrc or .bashrc) to specify pulseaudio server to be on localhost.
+```sh
+export PULSE_SERVER=tcp:localhost
+```
