@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# transparent image for regular terminal use
+blank="C:\/Users\/mushf\/Downloads\/term-image-preview\/images\/blank.png"
+
 show_image () {
 	# clear the screen first
 	show_blank
@@ -9,7 +12,6 @@ show_image () {
 	screen_height=1200
 
 	# filepaths
-	wrc=/mnt/c/Users/mushf/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json
 
 	# get full path of image
 	src=$(realpath $1)
@@ -19,7 +21,7 @@ show_image () {
 	h=$(identify -format %h $src)
 
 	# output filepath
-	dst=/mnt/c/Users/mushf/Downloads/term-image-preview/out.png
+	dst=/mnt/c/Users/mushf/Downloads/term-image-preview/output/out.png
 
 	# resize image
 
@@ -49,6 +51,23 @@ show_image () {
 	# convert to win filepath
 	img=$(echo $dst | sed 's/\/mnt\/\(\w\)/\U\1:/g' | sed 's/\//\\\//g')
 
+	# change terminal background
+	change_terminal_background $img
+}
+
+change_terminal_background () {
+	# path to terminal settings
+	wrc=/mnt/c/Users/mushf/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json
+
+	# the background image to set
+	img=$1
+
+	# check whether image has been passed in
+	if [ $img = "" ]; then
+		echo "Please specify background image in change_terminal_background()"
+		exit 1
+	fi
+
 	# form sed regular expression to replace backgroundImage in terminal settings
 	sedregex="0,/backgroundImage\"/s/\(backgroundImage\"\s*:\s*\"\).*\(\"\)/\1$img\2/"
 
@@ -57,16 +76,11 @@ show_image () {
 }
 
 show_blank () {
-	# filepaths
-	wrc=/mnt/c/Users/mushf/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json
-	blank="C:\/Users\/mushf\/Downloads\/term-image-preview\/images\/blank.png"
-
-	# form sed regular expression to replace backgroundImage in terminal settings
-	sedregex="0,/backgroundImage\"/s/\(backgroundImage\"\s*:\s*\"\).*\(\"\)/\1$blank\2/"
-
-	# perform replacement
-	sed -i "$sedregex" $wrc
+	change_terminal_background $blank
 }
+
+
+# Init
 
 # get extension of param
 ext="${1##*.}"
