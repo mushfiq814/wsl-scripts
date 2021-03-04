@@ -1,0 +1,87 @@
+#!/bin/sh
+
+show_image () {
+	# clear the screen first
+	show_blank
+
+	# variables to be automated later
+	screen_width=1920
+	screen_height=1200
+
+	# filepaths
+	wrc=/mnt/c/Users/mushf/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json
+
+	# get full path of image
+	src=$(realpath $1)
+
+	# get image sizes
+	w=$(identify -format %w $src)
+	h=$(identify -format %h $src)
+
+	# output filepath
+	dst=/mnt/c/Users/mushf/Downloads/term-image-preview/out.png
+
+	# resize image
+
+	# option 1
+	factor=$(echo "$screen_width / $w * 100 / 3" | bc -l)%
+	convert $src -resize $factor $dst
+
+	# option 2
+	# temp_w=$(($w / 4))
+	# temp_h=$(($h / 4))
+	# # make backup of image
+	# cp $src $dst
+	# mogrify -scale "$temp_w"x"$temp_h" -background none -gravity center $dst
+
+	# update image sizes
+	w=$(identify -format %w $dst)
+	h=$(identify -format %h $dst)
+
+	# modify sizes
+	new_w=$(($w * 2))
+	new_h=$(($h * 2))
+
+	# add padding around image and save to new dst
+	# echo -n "" $'\r'
+	mogrify -background transparent -gravity west -extent "$new_w"x"$new_h" $dst
+
+	# convert to win filepath
+	img=$(echo $dst | sed 's/\/mnt\/\(\w\)/\U\1:/g' | sed 's/\//\\\//g')
+
+	# form sed regular expression to replace backgroundImage in terminal settings
+	sedregex="0,/backgroundImage\"/s/\(backgroundImage\"\s*:\s*\"\).*\(\"\)/\1$img\2/"
+
+	# perform replacement
+	sed -i "$sedregex" $wrc
+}
+
+show_blank () {
+	# filepaths
+	wrc=/mnt/c/Users/mushf/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json
+	blank="C:\/Users\/mushf\/Downloads\/term-image-preview\/images\/blank.png"
+
+	# form sed regular expression to replace backgroundImage in terminal settings
+	sedregex="0,/backgroundImage\"/s/\(backgroundImage\"\s*:\s*\"\).*\(\"\)/\1$blank\2/"
+
+	# perform replacement
+	sed -i "$sedregex" $wrc
+}
+
+# get extension of param
+ext="${1##*.}"
+
+# if clear is passed in, clear the background
+if [ $1 = "clear" ]; then
+	show_blank
+
+# if not image, show file output
+elif [ $ext != "jpg" ] && [ $ext != "jpeg" ] && [ $ext != "png" ] && [ $ext != "gif" ]; then
+	show_blank
+	batcat --color always $1
+
+# otherwise show the image
+else
+	show_image $1
+fi
+

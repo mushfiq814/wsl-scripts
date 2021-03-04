@@ -1,0 +1,7 @@
+#!/bin/sh
+
+previewer=changebg
+
+fzf --preview="$previewer {}" --preview-window="left:50%:noborder:wrap"
+
+$previewer clear
