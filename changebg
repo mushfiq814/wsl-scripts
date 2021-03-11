@@ -65,7 +65,7 @@ prepare_image () {
 
 change_terminal_background () {
 	# path to terminal settings
-	wrc=/mnt/c/Users/mushf/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json
+	wrc=/mnt/c/Users/mushf/AppData/Local/Packages/Microsoft.WindowsTerminal_*/LocalState/settings.json
 
 	# the background image to set
 	img=$1
