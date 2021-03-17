@@ -1,19 +1,34 @@
 #!/bin/sh
 
+# cache directory
+cachedir=/tmp/wsl-image-preview
+
 # transparent image for regular terminal use
-blank="C:\/Users\/mushf\/Downloads\/term-image-preview\/images\/blank.png"
+blankSrc="./blank.png"
+blank="/mnt/c/Users/mushf/Downloads/blank.png"
+blankW="C:\/Users\/mushf\/Downloads\/blank.png"
+
+# finished image file path
+out="C:\/Users\/mushf\/Downloads\/pic.png"
+
+# path to terminal settings
+wrc=/mnt/c/Users/mushf/AppData/Local/Packages/Microsoft.WindowsTerminal_*/LocalState/settings.json
+
+# program to view text files with
+txt_viewer="bat --color always"
+
+# variables to be automated later
+screen_width=1920
+screen_height=1200
+
+convertWindowsPath() {
+	pth="$(echo $1 | sed 's/\/mnt\/\(\w\)/\U\1:/g; s/\//\\/g')"
+	echo $pth
+}
 
 prepare_image () {
 	# clear the screen first
 	clear_terminal_background
-
-	# variables to be automated later
-	screen_width=1920
-	screen_height=1200
-
-	# cache directory
-	# cachedir=/var/tmp/image-preview
-	cachedir=/mnt/c/Users/mushf/Downloads/term-image-preview/cache
 
 	# get full path of image
 	src=$(realpath "$1")
@@ -21,28 +36,19 @@ prepare_image () {
 	# create new filename to get rid of spaces
 	src2=$(echo $(basename "$1") | sed 's/ /-/g')
 
-	# cache image without spaces in filename
-	cp "$src" "$cachedir/$src2"
-
 	# path to output final preview image to
 	dst="$cachedir/$src2"
+
+	# cache image without spaces in filename
+	cp "$src" "$dst"
 
 	# get image sizes
 	w=$(identify -format %w "$src")
 	h=$(identify -format %h "$src")
 
 	# resize image
-
-	# option 1
 	factor=$(echo "$screen_width / $w * 100 / 3" | bc -l)%
 	convert "$src" -resize $factor $dst
-
-	# option 2
-	# temp_w=$(($w / 4))
-	# temp_h=$(($h / 4))
-	# # make backup of image
-	# cp $src $dst
-	# mogrify -scale "$temp_w"x"$temp_h" -background none -gravity center $dst
 
 	# update image sizes
 	w=$(identify -format %w $dst)
@@ -53,20 +59,16 @@ prepare_image () {
 	new_h=$(($h * 2))
 
 	# add padding around image and save to new dst
-	# echo -n "" $'\r'
 	mogrify -background transparent -gravity west -extent "$new_w"x"$new_h" $dst
 
-	# convert to win filepath
-	img=$(echo $dst | sed 's/\/mnt\/\(\w\)/\U\1:/g' | sed 's/\//\\\//g')
+	# move to windows file system
+	cp $img $out
 
 	# change terminal background
-	change_terminal_background $img
+	change_terminal_background $out
 }
 
 change_terminal_background () {
-	# path to terminal settings
-	wrc=/mnt/c/Users/mushf/AppData/Local/Packages/Microsoft.WindowsTerminal_*/LocalState/settings.json
-
 	# the background image to set
 	img=$1
 
@@ -84,7 +86,8 @@ change_terminal_background () {
 }
 
 clear_terminal_background () {
-	change_terminal_background $blank
+	cp $blankSrc $blank
+	change_terminal_background $blankW
 }
 
 # Init
@@ -99,7 +102,7 @@ if [ "$1" = "clear" ]; then
 # if not image, show file output
 elif [ $ext != "jpg" ] && [ $ext != "jpeg" ] && [ $ext != "png" ] && [ $ext != "gif" ]; then
 	clear_terminal_background
-	batcat --color always "$1"
+	$txt_viewer "$1"
 
 # otherwise show the image
 else
