@@ -1,28 +1,26 @@
 #!/bin/sh
 
 # cache directory
-cachedir=/tmp/wsl-image-preview
-
-# transparent image for regular terminal use
-blankSrc="./blank.png"
-blank="/mnt/c/Users/mushf/Downloads/blank.png"
-blankW="C:\/Users\/mushf\/Downloads\/blank.png"
+# cachedir=/tmp/wsl-image-preview
+cachedir=$HOME/projects/win-term-image-preview/cache
 
 # finished image file path
-out="C:\/Users\/mushf\/Downloads\/pic.png"
+out="C:/Users/mushf/Downloads/pic.png"
 
 # path to terminal settings
 wrc=/mnt/c/Users/mushf/AppData/Local/Packages/Microsoft.WindowsTerminal_*/LocalState/settings.json
-
-# program to view text files with
-txt_viewer="bat --color always"
 
 # variables to be automated later
 screen_width=1920
 screen_height=1200
 
-convertWindowsPath() {
+linux_2_windows() {
 	pth="$(echo $1 | sed 's/\/mnt\/\(\w\)/\U\1:/g; s/\//\\/g')"
+	echo $pth
+}
+
+windows_2_linux() {
+	pth="$(echo $1 | sed 's/\(\w\):/\/mnt\/\L\1/g')"
 	echo $pth
 }
 
@@ -61,10 +59,14 @@ prepare_image () {
 	# add padding around image and save to new dst
 	mogrify -background transparent -gravity west -extent "$new_w"x"$new_h" $dst
 
-	# move to windows file system
-	cp $img $out
+	# convert out filepath to linux filepath
+	out2=$(windows_2_linux $out)
+	echo $out2
 
-	# change terminal background
+	# move to windows file system
+	cp $dst $out2
+
+	# # change terminal background
 	change_terminal_background $out
 }
 
@@ -76,36 +78,43 @@ change_terminal_background () {
 	if [ $img = "" ]; then
 		echo "Please specify background image in change_terminal_background()"
 		exit 1
-	fi
 
-	# form sed regular expression to replace backgroundImage in terminal settings
-	sedregex="0,/backgroundImage\"/s/\(backgroundImage\"\s*:\s*\"\).*\(\"\)/\1$img\2/"
+	# if no image has been passed in clear background
+	elif [ $img = "clear" ]; then
+		# sed regular expression to comment out background image line
+		sedregex="0,/backgroundImage\"/s/^\([^\/]*\)\/*\s*\(\"backgroundImage\"\s*:\s*\".*\"\)/\1\/\/\2/"
+
+	else
+		# sed regular expression to replace backgroundImage in terminal settings
+		sedregex="0,/backgroundImage\"/s/\(backgroundImage\"\s*:\s*\"\).*\(\"\)/\1$img\2/"
+	fi
 
 	# perform replacement
 	sed -i "$sedregex" $wrc
 }
 
 clear_terminal_background () {
-	cp $blankSrc $blank
-	change_terminal_background $blankW
+	change_terminal_background clear
 }
 
 # Init
 
-# get extension of param
-ext="${1##*.}"
+# # get extension of param
+# ext="${1##*.}"
 
-# if clear is passed in, clear the background
-if [ "$1" = "clear" ]; then
-	clear_terminal_background
+# # if clear is passed in, clear the background
+# if [ "$1" = "clear" ]; then
+# 	clear_terminal_background
 
-# if not image, show file output
-elif [ $ext != "jpg" ] && [ $ext != "jpeg" ] && [ $ext != "png" ] && [ $ext != "gif" ]; then
-	clear_terminal_background
-	$txt_viewer "$1"
+# # if not image, show file output
+# elif [ $ext != "jpg" ] && [ $ext != "jpeg" ] && [ $ext != "png" ] && [ $ext != "gif" ]; then
+# 	clear_terminal_background
+# 	$txt_viewer "$1"
 
-# otherwise show the image
-else
-	prepare_image "$1"
-fi
+# # otherwise show the image
+# else
+# 	prepare_image "$1"
+# fi
+
+prepare_image "$1"
 
