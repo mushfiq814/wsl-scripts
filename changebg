@@ -5,22 +5,17 @@
 cachedir=$HOME/projects/win-term-image-preview/cache
 
 # finished image file path
-out="C:/Users/mushf/Downloads/pic.png"
+out="C\:\/Users\/mushf\/Downloads\/pic.png"
 
 # path to terminal settings
 wrc=/mnt/c/Users/mushf/AppData/Local/Packages/Microsoft.WindowsTerminal_*/LocalState/settings.json
 
 # variables to be automated later
 screen_width=1920
-screen_height=1200
-
-linux_2_windows() {
-	pth="$(echo $1 | sed 's/\/mnt\/\(\w\)/\U\1:/g; s/\//\\/g')"
-	echo $pth
-}
+screen_height=1080
 
 windows_2_linux() {
-	pth="$(echo $1 | sed 's/\(\w\):/\/mnt\/\L\1/g')"
+	pth="$(echo $1 | sed 's/\(\w\)\\\?:/\/mnt\/\L\1/g; s/\\\//\//g')"
 	echo $pth
 }
 
@@ -61,7 +56,7 @@ prepare_image () {
 
 	# convert out filepath to linux filepath
 	out2=$(windows_2_linux $out)
-	echo $out2
+	echo "out2: $out2"
 
 	# move to windows file system
 	cp $dst $out2
@@ -82,11 +77,11 @@ change_terminal_background () {
 	# if no image has been passed in clear background
 	elif [ $img = "clear" ]; then
 		# sed regular expression to comment out background image line
-		sedregex="0,/backgroundImage\"/s/^\([^\/]*\)\/*\s*\(\"backgroundImage\"\s*:\s*\".*\"\)/\1\/\/\2/"
+		sedregex="0,/\"backgroundImage\"/s/^\([^\/]*\)\/*\s*\(\"backgroundImage\"\s*:\s*\".*\"\)/\1\/\/\2/"
 
 	else
 		# sed regular expression to replace backgroundImage in terminal settings
-		sedregex="0,/backgroundImage\"/s/\(backgroundImage\"\s*:\s*\"\).*\(\"\)/\1$img\2/"
+		sedregex="0,/\"backgroundImage\"/s/^\([^\/]*\)\/*\s*\(\"backgroundImage\"\s*:\s*\"\).*\(\"\)/\1\2$img\3/"
 	fi
 
 	# perform replacement
@@ -99,22 +94,20 @@ clear_terminal_background () {
 
 # Init
 
-# # get extension of param
-# ext="${1##*.}"
+# get extension of param
+ext="${1##*.}"
 
-# # if clear is passed in, clear the background
-# if [ "$1" = "clear" ]; then
-# 	clear_terminal_background
+# if clear is passed in, clear the background
+if [ "$1" = "clear" ]; then
+	clear_terminal_background
 
-# # if not image, show file output
-# elif [ $ext != "jpg" ] && [ $ext != "jpeg" ] && [ $ext != "png" ] && [ $ext != "gif" ]; then
-# 	clear_terminal_background
-# 	$txt_viewer "$1"
+# if not image, show file output
+elif [ $ext != "jpg" ] && [ $ext != "jpeg" ] && [ $ext != "png" ] && [ $ext != "gif" ]; then
+	clear_terminal_background
+	$txt_viewer "$1"
 
-# # otherwise show the image
-# else
-# 	prepare_image "$1"
-# fi
-
-prepare_image "$1"
+# otherwise show the image
+else
+	prepare_image "$1"
+fi
 
