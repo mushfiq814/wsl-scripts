@@ -101,10 +101,10 @@ ext="${1##*.}"
 if [ "$1" = "clear" ]; then
 	clear_terminal_background
 
-# if not image, show file output
+# if not image, show error and clear the background
 elif [ $ext != "jpg" ] && [ $ext != "jpeg" ] && [ $ext != "png" ] && [ $ext != "gif" ]; then
+	echo "argument needs to be in jpg, jpeg, png or gif format"
 	clear_terminal_background
-	$txt_viewer "$1"
 
 # otherwise show the image
 else
