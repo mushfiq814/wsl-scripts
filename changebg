@@ -49,6 +49,11 @@ init() {
 		# convert linux path to windows path but with forward slashes (escaped)
 		# this is the format windows terminal settings expects
 		imgpath=$(realpath "$1" | sed 's/\/mnt\/\(\w\)/\U\1:/g; s/\//\\\//g')
+
+		# TODO: need to figure out what to do if image is in wsl filepath
+		# OPTION: copy into windows temporary path
+		# OPTION: copy into windows termainl config directory
+
 		change_terminal_background "$imgpath"
 	fi
 }
