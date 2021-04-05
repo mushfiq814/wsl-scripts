@@ -1,0 +1,63 @@
+#!/bin/sh
+
+# cache directory
+# cachedir=/tmp/wsl-image-preview
+cachedir=$HOME/projects/win-term-image-preview/cache
+
+# finished image file path
+out="C\:\/Users\/mushf\/Downloads\/pic.png"
+# variables to be automated later
+screen_width=1920
+screen_height=1080
+
+# convert windows filepath to linux
+windows_2_linux() {
+	pth="$(echo $1 | sed 's/\(\w\)\\\?:/\/mnt\/\L\1/g; s/\\\//\//g')"
+	echo $pth
+}
+
+prepare_image () {
+	# clear the screen first
+	clear_terminal_background
+
+	# get full path of image
+	src=$(realpath "$1")
+
+	# create new filename to get rid of spaces
+	src2=$(echo $(basename "$1") | sed 's/ /-/g')
+
+	# path to output final preview image to
+	dst="$cachedir/$src2"
+
+	# cache image without spaces in filename
+	cp "$src" "$dst"
+
+	# get image sizes in pixels
+	w=$(identify -format %w "$src")
+	h=$(identify -format %h "$src")
+
+	# resize image
+	factor=$(echo "$screen_width / $w * 100 / 3" | bc -l)%
+	convert "$src" -resize $factor $dst
+
+	# update image sizes
+	w=$(identify -format %w $dst)
+	h=$(identify -format %h $dst)
+
+	# modify sizes
+	new_w=$(($w * 2))
+	new_h=$(($h * 2))
+
+	# add padding around image and save to new dst
+	mogrify -background transparent -gravity west -extent "$new_w"x"$new_h" $dst
+
+	# convert out filepath to linux filepath
+	out2=$(windows_2_linux $out)
+	echo "out2: $out2"
+
+	# move to windows file system
+	cp $dst $out2
+
+	# # change terminal background
+	change_terminal_background $out
+}
