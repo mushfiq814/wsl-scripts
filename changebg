@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # path to terminal settings
-wrc=/mnt/c/Users/mushf/AppData/Local/Packages/Microsoft.WindowsTerminal_*/LocalState/settings.json
+wrc=/mnt/c/Users/*/AppData/Local/Packages/Microsoft.WindowsTerminal_*/LocalState/settings.json
 
 change_terminal_background () {
 	# the background image to set
@@ -46,6 +46,8 @@ init() {
 
 	# otherwise show the image
 	else
+		# convert linux path to windows path but with forward slashes (escaped)
+		# this is the format windows terminal settings expects
 		imgpath=$(realpath "$1" | sed 's/\/mnt\/\(\w\)/\U\1:/g; s/\//\\\//g')
 		change_terminal_background "$imgpath"
 	fi
