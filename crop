@@ -15,7 +15,7 @@ resize_image() {
 	win_height=$(echo $win_dims | cut -d\  -f 2)
 
 	# get extension of image
-	# NOTE: the following will not work with gifs
+	# TODO: need to figure out what to do for gifs
 	ext="${1##*.}"
 	# get filename without extension
 	dst=$(basename "$1" .$ext)
