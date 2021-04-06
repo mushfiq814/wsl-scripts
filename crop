@@ -2,11 +2,11 @@
 
 # cache directory
 # cachedir=/tmp/wsl-image-preview
-# cachedir=$HOME/projects/win-term-image-preview/cache
-cachedir=~/downloads
+cachedir=$HOME/projects/win-term-image-preview/cache
+# cachedir=/mnt/c/Users/mushf/Downloads
 
 # finished image file path
-out="~/downloads/pic.png"
+out=/mnt/c/Users/mushf/Downloads/pic.png
 
 resize_image() {
 	# get terminal window width and height
@@ -30,17 +30,17 @@ resize_image() {
 
 	# calculate factor to resize image by
 	factor=$(echo "$win_width / $w * 100 / 3" | bc -l)%
+
+	# resize image
 	# ImageMagick provides 3 options to resize images:
 	#   - resize factor => fast
 	#   - scale  factor => faster
 	#   - sample factor => fastest
-	convert "$1" -scale $factor $dst
-}
+	convert "$1" -sample $factor $dst
 
-prepare_image () {
 	# update image sizes
-	w=$(identify -format %w $dst)
-	h=$(identify -format %h $dst)
+	w=$(identify -format %w "$dst")
+	h=$(identify -format %h "$dst")
 
 	# modify sizes
 	new_w=$(($w * 2))
@@ -49,15 +49,8 @@ prepare_image () {
 	# add padding around image and save to new dst
 	mogrify -background transparent -gravity west -extent "$new_w"x"$new_h" $dst
 
-	# convert out filepath to linux filepath
-	out2=$(windows_2_linux $out)
-	echo "out2: $out2"
-
-	# move to windows file system
-	cp $dst $out2
-
-	# # change terminal background
-	change_terminal_background $out
+	# move to 
+	cp $dst $out
 }
 
 init() {
@@ -66,6 +59,7 @@ init() {
 
 	# resize image
 	resize_image $src
+
 }
 
 init $1
