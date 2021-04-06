@@ -1,3 +1,6 @@
+# suppress warnings
+$WarningPreference='silentlycontinue'
+
 # C# code
 $code = @"
 	public class Win32 {
@@ -19,8 +22,13 @@ Add-Type -MemberDefinition $code -Name WinUtils -Namespace WindowsUtilities
 # create rect object
 $Rect = New-Object WindowsUtilities.WinUtils+RECT
 
+# Get Window Handle for Windows Terminal process
+$handle = Get-Process `
+          | Where-Object { $_.ProcessName -eq "WindowsTerminal" } `
+          | Select-Object -ExpandProperty MainWindowHandle
+
 # call GetWindowRect which returns the result inside the rect object
-$null = [WindowsUtilities.WinUtils+Win32]::GetWindowRect(263640, [ref] $Rect)
+$null = [WindowsUtilities.WinUtils+Win32]::GetWindowRect($handle, [ref] $Rect)
 
 # calculate width and height
 $Width = $Rect.Right - $Rect.Left
