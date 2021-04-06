@@ -2,44 +2,42 @@
 
 # cache directory
 # cachedir=/tmp/wsl-image-preview
-cachedir=$HOME/projects/win-term-image-preview/cache
+# cachedir=$HOME/projects/win-term-image-preview/cache
+cachedir=~/downloads
 
 # finished image file path
-out="C\:\/Users\/mushf\/Downloads\/pic.png"
-# variables to be automated later
-screen_width=1920
-screen_height=1080
+out="~/downloads/pic.png"
 
-# convert windows filepath to linux
-windows_2_linux() {
-	pth="$(echo $1 | sed 's/\(\w\)\\\?:/\/mnt\/\L\1/g')"
-	echo $pth
+resize_image() {
+	# get terminal window width and height
+	win_dims=$(powershell.exe ./getWindowDims.ps1)
+	win_width=$(echo $win_dims | cut -d\  -f 1)
+	win_height=$(echo $win_dims | cut -d\  -f 2)
+
+	# get extension of image
+	# NOTE: the following will not work with gifs
+	ext="${1##*.}"
+	# get filename without extension
+	dst=$(basename "$1" .$ext)
+	# remove spaces and append png
+	dst=$(echo $dst | sed 's/ /-/g').png
+	# path to output final preview image to
+	dst=$cachedir/$dst
+
+	# get image sizes in pixels
+	w=$(identify -format %w "$1")
+	h=$(identify -format %h "$1")
+
+	# calculate factor to resize image by
+	factor=$(echo "$win_width / $w * 100 / 3" | bc -l)%
+	# ImageMagick provides 3 options to resize images:
+	#   - resize factor => fast
+	#   - scale  factor => faster
+	#   - sample factor => fastest
+	convert "$1" -scale $factor $dst
 }
 
 prepare_image () {
-	# clear the screen first
-	clear_terminal_background
-
-	# get full path of image
-	src=$(realpath "$1")
-
-	# create new filename to get rid of spaces
-	src2=$(echo $(basename "$1") | sed 's/ /-/g')
-
-	# path to output final preview image to
-	dst="$cachedir/$src2"
-
-	# cache image without spaces in filename
-	cp "$src" "$dst"
-
-	# get image sizes in pixels
-	w=$(identify -format %w "$src")
-	h=$(identify -format %h "$src")
-
-	# resize image
-	factor=$(echo "$screen_width / $w * 100 / 3" | bc -l)%
-	convert "$src" -resize $factor $dst
-
 	# update image sizes
 	w=$(identify -format %w $dst)
 	h=$(identify -format %h $dst)
@@ -61,3 +59,13 @@ prepare_image () {
 	# # change terminal background
 	change_terminal_background $out
 }
+
+init() {
+	# get full path of image
+	src=$(realpath "$1")
+
+	# resize image
+	resize_image $src
+}
+
+init $1
