@@ -1,3 +1,7 @@
+# A lot of the code here was obtained by searching for GitHub projects that use
+# DllImport and GetWindowRect such as this one:
+# https://github.com/Velocet/PowerShell/blob/7788825979297d87f58b15cef5aaf316196dbff3/Random/Testing/Fun/Set-PSWindowPosition.ps1
+
 # suppress warnings
 $WarningPreference='silentlycontinue'
 
