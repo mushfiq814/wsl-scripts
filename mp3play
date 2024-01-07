@@ -1,0 +1,77 @@
+#!/bin/sh
+# WSL PowerShell Music Player Initialization Script
+# Created By: Mushfiq Mahmud
+# February 2021
+
+# filepath variables
+nowplaying=$HOME/dotfiles/scripts/wsl-musicplayer/now-playing.txt
+psscript=./pa-server.ps1
+playlistFile=$HOME/dotfiles/scripts/wsl-musicplayer/playlist.txt
+
+stop_server () {
+	# Kill any previous powershell.exe sessions
+	pkill powershell.exe
+
+	# update now playing
+	lastsong=$(cat $nowplaying | head -n 1)
+	echo "Last Played: $lastsong" > $nowplaying
+}
+
+start_server () {
+	# stop any running servers first
+	stop_server
+
+	# start pulseaudio server
+	powershell.exe $psscript > /dev/null 2>&1 & echo $! > run.pid
+
+	echo "PulseAudio Server Started..."
+}
+
+play_song () {
+	# Stop any existing music player sessions
+	stop_server
+
+	# Write song info to file
+	artist=$(mid3v2 $1 | grep TPE1 | sed 's/TPE1=\(.*\)/\1/g')
+	title=$(mid3v2 $1 | grep TIT2 | sed 's/TIT2=\(.*\)/\1/g')
+	echo "$artist - $title" > $nowplaying
+
+	echo "Now Playing...$title by $artist"
+
+	# start mpv player
+	mpv $1
+}
+
+pause_song () {
+	echo "Pausing not supported yet"
+}
+
+shuffle () {
+	echo "Shuffling not supported yet"
+}
+
+# Parse flags and arguments
+while test $# -gt 0; do
+	case "$1" in
+		'--play')
+			shift
+			arg=$1
+			if [ -d "$arg" ]; then
+				echo "Cannot play from directory yet"
+			elif [ -f "$arg" ]; then
+				play_song $arg
+			else
+				echo "invalid"
+			fi
+			shift
+			continue
+		;;
+		'--pause') pause_song; shift 1; continue ;;
+		'--stop') stop_server; shift 1; continue ;;
+		'--start') start_server; shift 1; continue ;;
+		'--shuffle') shuffle; shift 1; continue ;;
+		'--') shift; break ;;
+		*) echo "$1 not available"; exit 1 ;;
+	esac
+done
+
