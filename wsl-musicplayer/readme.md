@@ -1,9 +1,10 @@
 # WSL PowerShell Music Player
-Play Music in Windows 10 through WSL by invoking a Windows Media Player in the background using PowerShell.
+Play Music in Windows 10 through WSL using VLC's [`libvlc`](https://wiki.videolan.org/LibVLC)
 
 ## Motivation
-The Windows Subsystem for Linux (WSL) is great and wasy to work with if all you need are shell sessions. You can even interface with files in the Windows filesystem. However, connecting hardware capabilities such as graphics (GUIs) and audio is still not as easy (as far as I have found). I wanted to be able to control my music player to play my local mp3 files from a WSL session and not finding any that works natively with WSL or that can interface with Groove Music (my music player of choice), I decided to turn to PowerShell to create Windows Media Player objects to play any local audio files while being able to be controlled through WSL.
+The Windows Subsystem for Linux (WSL) is great and wasy to work with if all you need are shell sessions. You can even interface with files in the Windows filesystem. However, connecting hardware capabilities such as graphics (GUIs) and audio is still not as easy (as far as I have found). I wanted to be able to control my music player to play my local mp3 files from a WSL session and not finding any that works natively with WSL or that can interface with Groove Music (my music player of choice), I decided to try to create a command line music player using libvlc.
 
+<<<<<<< HEAD:wsl-musicplayer/readme.md
 ## Disclaimer
 This project has been temporarily abandoned since I couldn't find a good way to pause and play mp3 files using Windows Media Player. The project has been moved into the `windows-media-player` branch.
 
@@ -42,3 +43,5 @@ Currently, I am using pulseaudio to drive audio hardware through WSL. All instru
 | `--prev`      | Go to previous song in playlist       | `mp3play --prev`     |
 | `--list`      | Show current playlist                 | `mp3play --list`     |
 | `--shuffle`   | Play current playlist in shuffle mode | `mp3play --shuffle`  |
+=======
+>>>>>>> wsl-musicplayer/libvlc:readme.md
